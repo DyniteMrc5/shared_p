@@ -20,7 +20,7 @@ Users provide shared_p a pointer and the shared_p then becomes the owner of that
 
 Users can provide a custom delete function to ::make_shared allowing custom destruction of T.
 
-shared_p provides an `operator T&`. This means that for any function which requires the original type as a reference argument the shared_p can be passed directly.
+shared_p provides an `operator T&`. This means that for any function which requires the original type as a reference argument the shared_p can be passed directly. Beware of the lifetime of returned reference is tied to the lifetime of the shared pointer.
 
 Example usages:
 
