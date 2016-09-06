@@ -12,16 +12,20 @@
  *
  * Example usages:
  *
+ * void fn(MyType& aData) { .. }
+ * void fn(shared_ptr<MyType> aData) { .. }
+ *
+ * void someFunc()
  * {
  * ----------------------------------------------------------------
- * 		shared_p<int> sp = shared_p<int>::make_shared(new int(5));
+ * 		shared_p<MyType> sp = shared_p<MyType>::make_shared(new MyType());
  * ---------------------------------------------------------------- or
- * 		int* data = new int(5);
- * 		shared_p<int> sp = shared_p<int>::make_shared(std::move(data));
+ * 		MyType* data = new MyType(5);
+ * 		shared_p<MyType> sp = shared_p<MyType>::make_shared(std::move(data));
  * 		(data now null - 'ownership transferred')
  * 	-----------------------------------------------------------------
  * 		 {
- * 			 shared_p<int> copy = sp;
+ * 			 shared_p<MyType> copy = sp;
  * 			 fn(copy);     fn could be a function taking a shared_p, or a function taking a int&
  * 		 } (copy deleted here, but sp remains in scope, so data not deleted)
  * 
@@ -53,7 +57,9 @@ public:
 	// --------------------------------------------- disallowed/deleted constructors:
 
 	/* Public constructor (R-value reference) 
-		- not allowed (due to trying to enforce the fact that this object is in control of the memory, rather than the stack).
+		- not allowed (due to trying to enforce the fact that this object is in control of the memory.
+		  e.g. Preventing e.g. make_shared(std::move(int(5))).
+		 
 		 - use T*&& version*/
 	static shared_p<T>&& make_shared(T&& aOther) = delete;
 
@@ -82,10 +88,10 @@ public:
 	// How many shared_p's reference this control block?
 	int count();
 
-	/*	overload to T&. (T remains under shared_p management)
+    /* Conversion operator to T&. (T remains under shared_p management)
 
-		Allows passing of shared_p, as if it was a T&, 
-		so can call functions with signitures like : void fn(T&) as fn(shared_p);
+       Allows passing of shared_p, as if it was a T&, 
+       so can call functions with signitures like : void fn(T&) as fn(shared_p);
 	*/
 	operator T&();
 
@@ -163,7 +169,6 @@ template<typename T>
 inline shared_p<T>::shared_p(shared_p && aOther)
 {
 	//std::cout << "Calling shared_p move constructor" << std::endl;
-
 	if (&aOther == this)
 	{
 		return;
